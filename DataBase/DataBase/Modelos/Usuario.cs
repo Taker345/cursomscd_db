@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataBase
-{ 
+namespace Database
+{
     public class Usuario
     {
         public int hiddenId { get; set; }
