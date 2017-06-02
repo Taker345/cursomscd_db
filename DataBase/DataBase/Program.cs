@@ -1,77 +1,100 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DataBase
+namespace Database
 {
     public class Program
     {
         static void Main(string[] args)
         {
             Console.WriteLine("Conectando a la base de datos");
-            Db database = new Db();
-            database.Connect();
+            Db.Conectar();
 
-            if (database.EstaLaConexionAbierta())
+            if (Db.EstaLaConexionAbierta())
             {
-                Usuario newUser = new Usuario()
+                //List<MarcasNCoches> lista = Db.DameListaMarcasNCoches();
+                //lista.ForEach(elemento => 
+                //{
+                //    Console.WriteLine(
+                //            " Marca: " + elemento.marca
+                //            +
+                //            " Nº de coches: " + elemento.nCoches
+                //            );
+                //});
+
+                List<Coche> listaCoches = Db.DameListaCochesConProcedimientoAlmacenado();
+                listaCoches.ForEach(coche =>
+                {
+                    Console.WriteLine(
+                        
+                        "Marca: " + coche.marca.denominacion +
+                        @" Matrícula: " + coche.matricula +
+                        //" Combustible: " + coche.tipoCombustible.denominacion +
+                        " Nº Plazas: " + coche.nPlazas
+
+                        );
+                });
+            }
+            Db.Desconectar();
+            Console.ReadKey();
+        }
+
+        public static void ObtenerUsuarios()
+        {
+            Console.WriteLine("Conectando a la base de datos");
+            Db.Conectar();
+
+            if (Db.EstaLaConexionAbierta())
+            {
+                Usuario nuevoUsuario = new Usuario()
                 {
                     //hiddenId = 0,
                     //id = "",
-                    firstName = "",
-                    lastName = "",
-                    email = "",
-                    password = "",
+                    firstName = "MANOLO",
+                    lastName = "EL DEL BOMBO",
+                    email = "kk3@kk.com",
+                    password = "123456",
                     photoUrl = "",
                     searchPreferences = "",
                     status = false,
                     deleted = false,
                     isAdmin = false,
-
-
                 };
-                database.InsertUser(newUser)
+                Db.InsertarUsuario(nuevoUsuario);
+                Console.WriteLine("Usuario insertado, pulsa una tecla para continuar...");
+                Console.ReadKey();
 
-                ;
+                nuevoUsuario.firstName += " modificado!!";
+                Db.ActualizarUsuario(nuevoUsuario);
+                Console.WriteLine("Usuario actualizado, pulsa una tecla para continuar...");
+                Console.ReadKey();
 
-                List<Usuario> listaUsuarios = database.DameLosUsuarios();
+                Db.EliminarUsuario("kk3@kk.com");
+                Console.WriteLine("Usuario eliminado, pulsa una tecla para continuar...");
 
+                List<Usuario> listaUsuarios = Db.DameLosUsuarios();
                 listaUsuarios.ForEach(usuario =>
                 {
                     Console.WriteLine(
-
-                        "\n"
-                        + "\n"
-                        + "hiddenId : "
-                        + usuario.hiddenId
-                        + "\nId : "
-                        + usuario.id
-                        + "\nEmail : "
-                        + usuario.email
-                        + "\nContraseña : "
-                        + usuario.password
-                        + "\nNombre : " 
-                        + usuario.firstName 
-                        + "\nApellido : " 
-                        + usuario.lastName 
-                        + "\nFoto de URL : "
-                        + usuario.photoUrl
-                        + "\nBuscar Preferencia : "
-                        + usuario.searchPreferences
-                        + "\nEs admin : "
-                        + usuario.isAdmin
-                        );
+                            " hiddenId: " + usuario.hiddenId
+                            +
+                            " id: " + usuario.id
+                            +
+                            " email: " + usuario.email
+                            +
+                            " password: " + usuario.password
+                            +
+                            " nombre: " + usuario.firstName
+                            +
+                            " Apellidos: " + usuario.lastName
+                            +
+                            " photoUrl: " + usuario.photoUrl
+                            );
                 });
             }
-
-            database.Desconectar();
-            database = null;
-            
-
-
+            Db.Desconectar();
             Console.ReadKey();
+
         }
-
-
-
     }
 }

@@ -2,150 +2,232 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DataBase
+namespace Database
 {
-    class Db
+    public static class Db
     {
-        private SqlConnection conexion = null;
-        public void Connect()
+        private static SqlConnection conexion = null;
+
+        public static void Conectar()
         {
             try
             {
-                //PREPARO LA CADENA DE CONEXION A LA BASE DE 
-                string cadenaConexion = @"Server=.\sqlexpress;Database=testdb;User Id=testuser;Password=!Curso@2017; ";
+                // PREPARO LA CADENA DE CONEXIÓN A LA BD
+                string cadenaConexion = @"Server=.\sqlexpress;
+                                          Database=carrental;
+                                          User Id=testuser;
+                                          Password=!Curso@2017;";
 
-                //CREO LA CONEXION
+                // CREO LA CONEXIÓN
                 conexion = new SqlConnection();
                 conexion.ConnectionString = cadenaConexion;
-                //TRATO DE ABRIR LA CONEXION
+
+                // TRATO DE ABRIR LA CONEXION
                 conexion.Open();
-                // PREGUNTO POR EL ESTADO DE LA CONEXION
+
+                //// PREGUNTO POR EL ESTADO DE LA CONEXIÓN
                 //if (conexion.State == ConnectionState.Open)
                 //{
-                //    Console.WriteLine("Conexion establecida con exito");
+                //    Console.WriteLine("Conexión abierta con éxito");
+                //    // CIERRO LA CONEXIÓN
+                //    conexion.Close();
                 //}
-
             }
-            //USAMOS EL CATCH EN CASO DE ERROR CON LO QUE CERRAMOS Y DESTRUIMOS LA CONEXCION
-
             catch (Exception)
             {
-                Console.WriteLine("Lo siento mijo, pero la base de datos esta en la mierda");
                 if (conexion != null)
                 {
-                    //CIERRO LA CONEXION
                     if (conexion.State != ConnectionState.Closed)
                     {
                         conexion.Close();
-                        Console.WriteLine("Conexion cerrada con exito");
                     }
-                    //DSTRUYO LA CONEXION
                     conexion.Dispose();
                     conexion = null;
-                    Console.WriteLine("Conxion DESTRUIDA con Exito");
                 }
             }
             finally
             {
-                
-
+                // DESTRUYO LA CONEXIÓN
+                //if (conexion != null)
+                //{
+                //    if (conexion.State != ConnectionState.Closed)
+                //    {
+                //        conexion.Close();
+                //        Console.WriteLine("Conexión cerrada con éxito");
+                //    }
+                //    conexion.Dispose();
+                //    conexion = null;
+                //}
             }
-
-
         }
 
-
-        public bool EstaLaConexionAbierta()
+        public static bool EstaLaConexionAbierta()
         {
             return conexion.State == ConnectionState.Open;
         }
 
-        public void Desconectar()
+        public static void Desconectar()
         {
-            if (conexion != null)
+            if (conexion !=null)
             {
-                //CIERRO LA CONEXION
                 if (conexion.State != ConnectionState.Closed)
                 {
                     conexion.Close();
                 }
-
             }
         }
-        public List<Usuario> DameLosUsuarios()
+
+        public static List<Usuario> DameLosUsuarios()
         {
+            //Usuario[]     usuarios = null;
             List<Usuario> usuarios = null;
-            //Usuario[] usuarios = null;
-            //PREPARO LA CONSULTA SQL PARA OBTENER USUARIO
-            string consultaSQL = "SELECT * FROM Users";
-            //PREPARO UN COMLANDO PARA EJECUTAR A LA BASE DE DATOS
-            SqlCommand comando = new SqlCommand(consultaSQL, this.conexion);
-            //RECOJO LOS DATOS
+            // PREPARO LA CONSULTA SQL PARA OBTENER LOS USUARIOS
+            string consultaSQL = "SELECT * FROM Users;";
+            // PREPARO UN COMANDO PARA EJECUTAR A LA BASE DE DATOS
+            SqlCommand comando = new SqlCommand(consultaSQL, conexion);
+            // RECOJO LOS DATOS
             SqlDataReader reader = comando.ExecuteReader();
             usuarios = new List<Usuario>();
-            //int numeroDeUsuarios = 0;
+
             while (reader.Read())
             {
-
                 usuarios.Add(new Usuario()
                 {
                     hiddenId = int.Parse(reader["hiddenId"].ToString()),
                     id = reader["id"].ToString(),
-                    password = reader["password"].ToString(),
+                    email = reader["email"].ToString(),
+                    password= reader["password"].ToString(),
                     firstName = reader["firstName"].ToString(),
                     lastName = reader["lastName"].ToString(),
                     photoUrl = reader["photoUrl"].ToString(),
                     searchPreferences = reader["searchPreferences"].ToString(),
                     status = bool.Parse(reader["status"].ToString()),
                     deleted = (bool)reader["deleted"],
-                    isAdmin = Convert.ToBoolean(reader["isAdmin"]),
-
+                    isAdmin = Convert.ToBoolean(reader["isAdmin"])
                 });
-            //numeroDeUsuarios++;
-                //Console.WriteLine("Nombre : " + reader["firstName"]);
             }
-
 
             // DEVUELVO LOS DATOS
             return usuarios;
         }
 
-        public void InsertUser(Usuario usuario)
+        public static List<MarcasNCoches> DameListaMarcasNCoches()
         {
-            //PREPARO LA CONSULTA SQL PARA INSERTAR AL NUEVO USUARIO
+            List<MarcasNCoches> resultados = new List<MarcasNCoches>();
+            // PREPARO LA CONSULTA SQL PARA OBTENER LOS USUARIOS
+            string consultaSQL = "SELECT * FROM V_N_COCHES_POR_MARCA;";
+            // PREPARO UN COMANDO PARA EJECUTAR A LA BASE DE DATOS
+            SqlCommand comando = new SqlCommand(consultaSQL, conexion);
+            // RECOJO LOS DATOS
+            SqlDataReader reader = comando.ExecuteReader();
+
+            while (reader.Read())
+            {
+                resultados.Add(new MarcasNCoches()
+                {
+                    marca = reader["Marca"].ToString(),
+                    nCoches = (int)reader["nCoches"]
+                });
+            }
+
+            // DEVUELVO LOS DATOS
+            return resultados;
+        }
+
+        public static List<Coche> DameListaCochesConProcedimientoAlmacenado()
+        {
+            // CREO EL OBJETO EN EL QUE SE DEVOLVERÁN LOS RESULTADOS
+            List<Coche> resultados = new List<Coche>();
+
+            // PREPARO LA LLAMADA AL PROCEDIMIENTO ALMACENADO
+            string procedimientoAEjecutar = "dbo.GET_COCHE_POR_MARCA";
+
+            // PREPARAMOS EL COMANDO PARA EJECUTAR EL PROCEDIMIENTO ALMACENADO
+            SqlCommand comando = new SqlCommand(procedimientoAEjecutar, conexion);
+            comando.CommandType = CommandType.StoredProcedure;
+            // EJECUTO EL COMANDO
+            SqlDataReader reader = comando.ExecuteReader();
+            // RECORRO EL RESULTADO Y LO PASO A LA VARIABLE A DEVOLVER
+            while (reader.Read())
+            {
+                // CREO EL COCHE
+                Coche coche = new Coche();
+                coche.id = (long)reader["id"];
+                coche.matricula = reader["matricula"].ToString();
+                coche.color = reader["color"].ToString();
+                coche.cilindrada = (decimal)reader["cilindrada"];
+                coche.nPlazas = (short)reader["nPlazas"];
+                coche.fechaMatriculacion = (DateTime)reader["fechaMatriculacion"];
+                coche.marca = new Marca();
+                coche.marca.id = (long)reader["idMarca"];
+                coche.marca.denominacion = reader["denominacionMarca"].ToString();
+                //coche.tipoCombustible = new TipoCombustible();
+                //coche.tipoCombustible.id = (long)reader["idTipoCombustible"];
+                //coche.tipoCombustible.denominacion = reader["denominacionTipoCombustible"].ToString();
+                // AÑADO EL COCHE A LA LISTA DE RESULTADOS
+                resultados.Add(coche);
+
+            }
+
+            return resultados;
+        }
+
+        public static void InsertarUsuario(Usuario usuario)
+        {
+            // PREPARO LA CONSULTA SQL PARA INSERTAR AL NUEVO USUARIO
             string consultaSQL = @"INSERT INTO Users (
-                                                email
-                                               ,password
-                                               ,firstName
-                                               ,lastName
-                                               ,photoUrl
-                                               ,searchPreferences
-                                               ,status
-                                               ,deleted
-                                               ,isAdmin
-                                               )
+                    email,password,firstName,lastName,photoUrl
+                    ,searchPreferences,status,deleted,isAdmin
+		                                       )
                                          VALUES (";
             consultaSQL += "'" + usuario.email + "'";
             consultaSQL += ",'" + usuario.password + "'";
             consultaSQL += ",'" + usuario.firstName + "'";
             consultaSQL += ",'" + usuario.lastName + "'";
             consultaSQL += ",'" + usuario.photoUrl + "'";
-            consultaSQL += "," + usuario.searchPreferences + "";
+            consultaSQL += ",'" + usuario.searchPreferences + "'";
             consultaSQL += "," + (usuario.status ? "1" : "0");
-            consultaSQL += "," + (usuario.deleted? "1":"0");
+            consultaSQL += "," + (usuario.deleted ? "1" : "0");
             consultaSQL += "," + (usuario.isAdmin ? "1" : "0");
             consultaSQL += ");";
-            //PREPARO UN COMLANDO PARA EJECUTAR A LA BASE DE DATOS
-            SqlCommand comando = new SqlCommand(consultaSQL, this.conexion);
-            //RECOJO LOS DATOS
-            comando.ExecuteNonQuery();
-           
-        
 
+            // PREPARO UN COMANDO PARA EJECUTAR A LA BASE DE DATOS
+            SqlCommand comando = new SqlCommand(consultaSQL, conexion);
+            // RECOJO LOS DATOS
+            comando.ExecuteNonQuery();
+        }
+
+        public static void EliminarUsuario(string email)
+        {
+            // PREPARO LA CONSULTA SQL PARA INSERTAR AL NUEVO USUARIO
+            string consultaSQL = @"DELETE FROM Users 
+                                   WHERE email = '" + email + "';";
+
+            // PREPARO UN COMANDO PARA EJECUTAR A LA BASE DE DATOS
+            SqlCommand comando = new SqlCommand(consultaSQL, conexion);
+            // EJECUTO EL COMANDO
+            comando.ExecuteNonQuery();
+        }
+
+        public static void ActualizarUsuario(Usuario usuario)
+        {
+            // PREPARO LA CONSULTA SQL PARA INSERTAR AL NUEVO USUARIO
+            string consultaSQL = @"UPDATE Users ";
+            consultaSQL += "   SET password = '" + usuario.password +"'";
+            consultaSQL += "      , firstName = '" + usuario.firstName +"'";
+            consultaSQL += "      , lastName = '" + usuario.lastName +"'";
+            consultaSQL += "      , photoUrl = '" + usuario.photoUrl +"'";
+            consultaSQL += "      , searchPreferences = '" + usuario.searchPreferences +"'";
+            consultaSQL += "      , status = " + (usuario.status ? "1" : "0");
+            consultaSQL += "      , deleted = " + (usuario.deleted ? "1" : "0");
+            consultaSQL += "      , isAdmin = " + (usuario.isAdmin ? "1" : "0");
+            consultaSQL += " WHERE email = '" + usuario.email + "';";
+
+            // PREPARO UN COMANDO PARA EJECUTAR A LA BASE DE DATOS
+            SqlCommand comando = new SqlCommand(consultaSQL, conexion);
+            // EJECUTO EL COMANDO
+            comando.ExecuteNonQuery();
         }
     }
 }
