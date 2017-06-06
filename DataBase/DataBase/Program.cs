@@ -22,11 +22,24 @@ namespace Database
                 //            );
                 //});
 
+                //List<Coche> listaCoches = Db.DameListaCochesConProcedimientoAlmacenado();
+                //listaCoches.ForEach(coche =>
+                //{
+                //    Console.WriteLine(
+
+                //        "Marca: " + coche.marca.denominacion +
+                //        @" Matrícula: " + coche.matricula +
+                //        //" Combustible: " + coche.tipoCombustible.denominacion +
+                //        " Nº Plazas: " + coche.nPlazas
+
+                //        );
+                //});
+
                 List<Coche> listaCoches = Db.DameListaCochesConProcedimientoAlmacenado();
                 listaCoches.ForEach(coche =>
                 {
                     Console.WriteLine(
-                        
+
                         "Marca: " + coche.marca.denominacion +
                         @" Matrícula: " + coche.matricula +
                         //" Combustible: " + coche.tipoCombustible.denominacion +
@@ -34,6 +47,7 @@ namespace Database
 
                         );
                 });
+
             }
             Db.Desconectar();
             Console.ReadKey();
