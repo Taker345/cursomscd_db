@@ -1,5 +1,5 @@
 alter procedure GET_COCHE_POR_MARCA_MATRICULA_PLAZAS_2
-	@marca nvarchar(50) = NULL 
+	 @marca nvarchar(50) = NULL 
 	,@nPlazas smallint = NULL 
 AS
 BEGIN

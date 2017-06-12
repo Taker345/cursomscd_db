@@ -1,5 +1,5 @@
--- CREAMOS UN PROCEDIMIENTO ALMACENADO
-ALTER PROCEDURE GET_COCHE_POR_MARCA
+CREATE PROCEDURE GET_COCHE_POR_MARCA_ID
+	@id BIGINT = NULL 
 AS
 BEGIN
 SELECT 
@@ -12,7 +12,8 @@ SELECT
 FROM Marcas
     INNER JOIN Coches on Marcas.id = Coches.idMarca
     INNER JOIN TiposCombustibles on Coches.idTipoCombustible = TiposCombustibles.id
-
+	WHERE
+		Coches.id = @id
 GROUP BY 
       Marcas.denominacion
     , TiposCombustibles.denominacion
