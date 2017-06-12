@@ -15,37 +15,55 @@ namespace ApiCarRental.Controllers
         //{
         //    return new string[] { "value1", "value2" };
         //}
-        public IEnumerable<Coche> Get()
+
+        //public IEnumerable<Coche> Get()
+        public RespuestaAPI Get()
         {
             RespuestaAPI resultado = new RespuestaAPI();
             List<Coche> data = new List<Coche>();
             try
             {
                 Db.Conectar();
-
                 if (Db.EstaLaConexionAbierta())
                 {
                     data = Db.DameListaCochesConProcedimientoAlmacenado();
                     resultado.error = "";
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 resultado.error = "Error";
             }
 
             resultado.totalElementos = data.Count;
             resultado.data = data;
-
-            return data;
+            return resultado;
 
         }
         // GET: api/Coches/5
-        public string Get(int id)
+        public RespuestaAPI Get(long id)
         {
-            return "value";
-        }
+            RespuestaAPI resultado = new RespuestaAPI();
+            List<Coche> data = new List<Coche>();
+            try
+            {
+                Db.Conectar();
+                if (Db.EstaLaConexionAbierta())
+                {
+                    data = Db.DameListaCochesConProcedimientoAlmacenadoPorId(id);
+                    resultado.error = "";
+                }
+            }
+            catch (Exception ex)
+            {
+                resultado.error = "Error";
+            }
 
+            resultado.totalElementos = data.Count;
+            resultado.data = data;
+            return resultado;
+
+        }
         // POST: api/Coches
         public void Post([FromBody]string value)
         {

@@ -110,11 +110,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
+    <Content Include="Views\js\marcas.js" />
+    <Content Include="Views\marcas.html" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\CochesController.cs" />
+    <Compile Include="Controllers\CombustibleController.cs" />
+    <Compile Include="Controllers\MarcasController.cs" />
     <Compile Include="DB\Db.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
